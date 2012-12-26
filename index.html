@@ -2,17 +2,32 @@
 <html>
   <head>
     <title>Peter's Page</title>
-    <script type="application/javascript">
-   function draw(){
-    var canvas = document.getElementById("canvas");
+    <script type="text/javascript">
+    
+    document.addEventListener("DOMContentLoaded", init, false);
+    
+    function init()
+    {
+        var canvas = document.getElementById("canvas");
+        canvas.addEventListener("mousedown", draw, false);
+    }
+    
+   function draw(e){
+   
+    var canvas = document.getElementById("canvas");   
     var ctx = canvas.getContext("2d");
+   
+    ctx.fillStyle = "red";
     
-    ctx.fillStyle = "rgb(200,0,0)";
-    ctx.fillRect(10, 10, 55, 50);
+    ctx.beginPath();
+    ctx.moveTo(50, 50);
+    ctx.lineTo(150, 150);
+    ctx.bezierCurveTo(60, 70, 60, 70, 70, 150);
+    ctx.lineTo(50, 50);
+    ctx.stroke();
     
-    ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
-    ctx.fillRect(30, 30, 55, 50); 
    }
+ 
     </script>
   </head>
   <body>
