@@ -50,11 +50,19 @@
             }
         }
         
-        setTimeout(circCallback("orange"), 1000);
-        
-        setTimeout(circCallback("red"), 2000);
-        
-        setTimeout(circCallback("white"), 3000);
+        /* Silly thing for doing all the colors!
+        // 255/17 = 15. That's useful!
+        // 17^3 = 4913
+        for (var i = 0; i < 4913; i++)
+        {
+            var r = 15*Math.floor(i/289); 
+            var g = 15*Math.floor((i-(r*289/15))/17);
+            var b = 15*Math.floor(i%17);
+            var ccol = "rgb(" + r.toString() + "," + g.toString() + "," +
+                       b.toString() + ")";
+            setTimeout(circCallback(ccol), i);
+        }
+        */
     
    }
    
