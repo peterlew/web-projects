@@ -36,14 +36,27 @@
         var ctx = canvas.getContext("2d");
         var x = e.x - this.offsetLeft;
         var y = e.y - this.offsetTop;
-       
-        ctx.fillStyle = "red";
         
         ctx.beginPath();
-        ctx.moveTo(350, 350);
-        ctx.quadraticCurveTo(x/2, y/2, x, y);
+        ctx.moveTo(x, y);
+        ctx.lineTo(350, 350);
+        ctx.closePath();
         ctx.stroke();
     
+   }
+   
+   function circs(x, y, cxt, sze)
+   {
+        if (sze < 1) 
+            return();
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.arc(x, y, sze, 0, 2*Math.PI);
+        ctx.stroke();
+        circs(x+sze, y, cxt, sze/2);
+        circs(x-sze, y, cxt, sze/2);
+        circs(x, y+sze, cxt, sze/2);
+        circs(x, y-sze, cxt, sze/2);
    }
    
    function clearScn()
