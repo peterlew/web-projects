@@ -26,23 +26,36 @@
             mouseDown = false;
     }
     
-   function draw(e){
+   function draw(e)
+   {
    
-    if (!mouseDown)
-        return;
+        if (!mouseDown)
+            return;
+            
+        var canvas = document.getElementById("canvas");   
+        var ctx = canvas.getContext("2d");
+        var x = e.x - this.offsetLeft;
+        var y = e.y - this.offsetTop;
+       
+        ctx.fillStyle = "red";
         
-    var canvas = document.getElementById("canvas");   
-    var ctx = canvas.getContext("2d");
-    var x = e.x - this.offsetLeft;
-    var y = e.y - this.offsetTop;
+        ctx.beginPath();
+        ctx.moveTo(350, 350);
+        ctx.quadraticCurveTo(x, y, 350, 300);
+        ctx.stroke();
+    
+   }
    
-    ctx.fillStyle = "red";
-    
-    ctx.beginPath();
-    ctx.moveTo(350, 350);
-    ctx.bezierCurveTo(0, 0, x, y, 350, 300);
-    ctx.stroke();
-    
+   function clearScn()
+   {
+        var canvas = document.getElementById("canvas");
+        var ctx = canvas.getContext("2d");
+       
+        ctx.save();
+        ctx.setTransform(1, 0 , 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.restore();
+        
    }
  
     </script>
@@ -52,6 +65,6 @@
   </head>
   <body>
     <canvas id="canvas" width="700" height="700"></canvas>
-    <p>Under construction</p>
+    <button type="button" onclick="clearScn()">Clear</button>
   </body>
 </html>
