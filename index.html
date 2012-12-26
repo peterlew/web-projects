@@ -37,26 +37,41 @@
         var x = e.x - this.offsetLeft;
         var y = e.y - this.offsetTop;
         
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(350, 350);
-        ctx.closePath();
-        ctx.stroke();
+        var dx = Math.abs(x-350);
+        var dy = Math.abs(y-350);
+        var dis = Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2));
+        
+        circs(350, 350, ctx, dis, "black");
+        
+        function circCallback(col)
+        {
+            return function(){
+                circs(350, 350, ctx, dis, col);
+            }
+        }
+        
+        setTimeout(circCallback("orange"), 1000);
+        
+        setTimeout(circCallback("red"), 2000);
+        
+        setTimeout(circCallback("white"), 3000);
     
    }
    
-   function circs(x, y, cxt, sze)
+   function circs(x, y, ctx, sze, col)
    {
-        if (sze < 1) 
-            return();
+        if (sze < 10) 
+            return;
+        var nsze = Math.floor(sze);
         ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.arc(x, y, sze, 0, 2*Math.PI);
+        ctx.moveTo(x+nsze, y);
+        ctx.arc(x, y, nsze, 0, 2*Math.PI);
+        ctx.strokeStyle = col;
         ctx.stroke();
-        circs(x+sze, y, cxt, sze/2);
-        circs(x-sze, y, cxt, sze/2);
-        circs(x, y+sze, cxt, sze/2);
-        circs(x, y-sze, cxt, sze/2);
+        circs(x+nsze, y, ctx, nsze/2);
+        circs(x-nsze, y, ctx, nsze/2);
+        circs(x, y+nsze, ctx, nsze/2);
+        circs(x, y-nsze, ctx, nsze/2);
    }
    
    function clearScn()
