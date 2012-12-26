@@ -5,6 +5,7 @@
     <script type="text/javascript">
     
     document.addEventListener("DOMContentLoaded", init, false);
+    document.addEventListener("mousemove", checkBorder, false);
     
     var mouseDown = false;
     
@@ -14,6 +15,15 @@
         canvas.addEventListener("mousemove", draw, false);
         canvas.addEventListener("mousedown", function(){mouseDown=true;}, false);
         canvas.addEventListener("mouseup", function(){mouseDown=false;}, false);
+    }
+    
+    function checkBorder(e)
+    {
+        var canvas = document.getElementById("canvas");
+        var x = e.x - canvas.offsetLeft;
+        var y = e.y - canvas.offsetTop;
+        if (x >= 700 || y >= 700 || x <= 0 || y <= 0)
+            mouseDown = false;
     }
     
    function draw(e){
