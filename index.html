@@ -15,6 +15,17 @@
         canvas.addEventListener("mousemove", draw, false);
         canvas.addEventListener("mousedown", function(){mouseDown=true;}, false);
         canvas.addEventListener("mouseup", function(){mouseDown=false;}, false);
+        
+        var colCan;
+        var colCtx;
+        var ccols = [["cred", "red"], ["cgreen", "green"],
+                     ["cblue", "blue"], ["corange", "orange"]];
+        for(var i in ccols){
+            colCan = document.getElementById(ccols[i][0]);
+            colCtx = colCan.getContext("2d");
+            colCtx.fillStyle = ccols[i][1];
+            ctx.fillRect(0, 0, colCan.width, colCan.height);
+        }
     }
     
     function checkBorder(e)
@@ -54,7 +65,9 @@
         
         setTimeout(sqrCallback("orange"), 1000);
         setTimeout(sqrCallback("red"), 2000);
+       
         setTimeout(sqrCallback("white"), 3000);
+        
         /*
         circs(350, 350, ctx, dis, "black");
         
@@ -124,6 +137,9 @@
             cx[i] = x + dis*Math.cos(rads+(i*Math.PI/2));
             cy[i] = y + dis*Math.sin(rads+(i*Math.PI/2));
         }
+        if (col == "white")
+            ctx.lineWidth = 3;
+        else ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(cx[3], cy[3]);
         for (var i = 0; i < 4; i++)
@@ -155,6 +171,10 @@
   </head>
   <body>
     <canvas id="canvas" width="700" height="700"></canvas>
+    <canvas id="cred" width="50" height="50"></canvas>
+    <canvas id="cgreen" width="50" height="50"></canvas>
+    <canvas id="cblue" width="50" height="50"></canvas>
+    <canvas id="corange" width="50" height="50"></canvas>
     <button type="button" onclick="clearScn()">Clear</button>
     <p>Site Under Construction</p>
   </body>
