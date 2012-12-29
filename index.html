@@ -24,7 +24,7 @@
             colCan = document.getElementById(ccols[i][0]);
             colCtx = colCan.getContext("2d");
             colCtx.fillStyle = ccols[i][1];
-            ctx.fillRect(0, 0, colCan.width, colCan.height);
+            colCtx.fillRect(0, 0, colCan.width, colCan.height);
         }
     }
     
@@ -166,16 +166,20 @@
  
     </script>
     <style type="text/css">
-    canvas {border: 1px solid black; }
+    #canvas {border: 1px solid black; }
     </style>
   </head>
   <body>
+    <p>
     <canvas id="canvas" width="700" height="700"></canvas>
     <canvas id="cred" width="50" height="50"></canvas>
     <canvas id="cgreen" width="50" height="50"></canvas>
     <canvas id="cblue" width="50" height="50"></canvas>
     <canvas id="corange" width="50" height="50"></canvas>
+    </p>
+    <p><br>
     <button type="button" onclick="clearScn()">Clear</button>
+    </p>
     <p>Site Under Construction</p>
   </body>
 </html>
