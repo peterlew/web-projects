@@ -16,15 +16,15 @@
         canvas.addEventListener("mousedown", function(){mouseDown=true;}, false);
         canvas.addEventListener("mouseup", function(){mouseDown=false;}, false);
         
-        var colCan;
-        var colCtx;
-        var ccols = [["cred", "red"], ["cgreen", "green"],
-                     ["cblue", "blue"], ["corange", "orange"]];
+        var colSel = document.getElementById("colSelect");
+        var selCtx = colSel.getContext("2d");
+        var ccols = ["red", "green", "blue", "orange"];
+        var th, tw;
         for(var i in ccols){
-            colCan = document.getElementById(ccols[i][0]);
-            colCtx = colCan.getContext("2d");
-            colCtx.fillStyle = ccols[i][1];
-            colCtx.fillRect(0, 0, colCan.width, colCan.height);
+            th = (Math.floor(i/2)) * 50;
+            tw = (i % 2) * 50;
+            selCtx.fillStyle = ccols[i];
+            selCtx.fillRect((11*tw/10) + 20, th, 50, 50);
         }
     }
     
@@ -166,16 +166,15 @@
  
     </script>
     <style type="text/css">
-    #canvas {border: 1px solid black; }
+    canvas {border: 1px solid black; }
     </style>
   </head>
   <body>
     <p>
     <canvas id="canvas" width="700" height="700"></canvas>
-    <canvas id="cred" width="50" height="50"></canvas>
-    <canvas id="cgreen" width="50" height="50"></canvas>
-    <canvas id="cblue" width="50" height="50"></canvas>
-    <canvas id="corange" width="50" height="50"></canvas>
+    <canvas id="colQ" width="50" height="700"></canvas>
+    <canvas id="colSelect" width="125" height="526"></canvas> <!-- cannot exceed
+    526 ... WHY? -->
     </p>
     <p><br>
     <button type="button" onclick="clearScn()">Clear</button>
