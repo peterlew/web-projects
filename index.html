@@ -6,8 +6,9 @@
     
     document.addEventListener("DOMContentLoaded", init, false);
     document.addEventListener("mousemove", checkBorder, false);
+    document.addEventListener("mouseup", mUp, false);    
     
-    var mouseDown = false;
+    var mouseDown = 0;
     
     //keep an even number of colors please!
     var ccols = ["red", "green", "blue", "orange"];    
@@ -16,8 +17,7 @@
     {
         var canvas = document.getElementById("canvas");
         canvas.addEventListener("mousemove", draw, false);
-        canvas.addEventListener("mousedown", function(){mouseDown=true;}, false);
-        canvas.addEventListener("mouseup", function(){mouseDown=false;}, false);
+        canvas.addEventListener("mousedown", function(){mouseDown=1;}, false);
         
         var colSel = document.getElementById("colSelect");
         var selCtx = colSel.getContext("2d");
@@ -27,6 +27,13 @@
         colSel.addEventListener("mousedown", colSelected, false);
         colSel.addEventListener("mousemove", moveSelected, false);
         
+    }
+    
+    function mUp()
+    {
+        mouseDown = 0;
+        var canv = document.getElementById("colSelect");
+        drawColBoxes(canv, canv.getContext("2d"), -1);
     }
     
     function drawColBoxes(canv, ctx, noDraw)
@@ -65,7 +72,11 @@
     
     function colSelected(e)
     {
+        
+        mouseDown = 2;
+        
         var canvas = document.getElementById("colSelect");
+        var ctx = canvas.getContext("2d");
         var x = e.x - canvas.offsetLeft;
         var y = e.y - canvas.offsetTop;
 
@@ -85,23 +96,59 @@
         
         document.getElementById("bottomText").innerHTML = colIndex.toString();
         
-        drawColBoxes(canvas, canvas.getContext("2d"), colIndex);
+        var boxX = (11*((colIndex % 2) * 50)/10) + 95;
+        var boxY = (11*(Math.floor(colIndex/2) * 50)/10) + 200;
+        
+        var desX = x - 25;
+        var desY = y - 25;
+        
+        drawColBoxes(canvas, ctx, colIndex);
+        ctx.fillStyle = ccols[colIndex];
+        ctx.fillRect(desX, desY, 50, 50);
+        
+        /* Animation -- not really working
+        while(boxX != desX || boxY != desY)
+        {
+            drawColBoxes(canvas, ctx, colIndex);
+            ctx.fillStyle = ccols[colIndex];
+            ctx.fillRect(boxX, boxY, 50, 50);
+            if(boxX < desX)
+                boxX++;
+            else if(boxX > dexX)
+                boxX--;
+            if(boxY < desY)
+                boxY++;
+            else if(boxY > desY)
+                boxY--;
+        }
+        */
         
     }
     
     function checkBorder(e)
     {
-        var canvas = document.getElementById("canvas");
+        if (mouseDown == 0) 
+            return;
+        if (mouseDown == 1)
+            var canvas = document.getElementById("canvas");
+        else if (mouseDown == 2)
+            var canvas = document.getElementById("colSelect");
+        else return;
+        
         var x = e.x - canvas.offsetLeft;
         var y = e.y - canvas.offsetTop;
-        if (x >= 700 || y >= 700 || x <= 0 || y <= 0)
-            mouseDown = false;
+        if (x >= canvas.width || y >= canvas.height || x <= 0 || y <= 0)
+        {
+            if(mouseDown == 2)
+                drawColBoxes(canvas, canvas.getContext("2d"), -1);
+            mouseDown = 0;
+        }    
     }
     
    function draw(e)
    {
    
-        if (!mouseDown)
+        if (mouseDown != 1)
             return;
             
         var canvas = document.getElementById("canvas");   
