@@ -9,6 +9,9 @@
     
     var mouseDown = false;
     
+    //keep an even number of colors please!
+    var ccols = ["red", "green", "blue", "orange"];    
+    
     function init()
     {
         var canvas = document.getElementById("canvas");
@@ -18,14 +21,72 @@
         
         var colSel = document.getElementById("colSelect");
         var selCtx = colSel.getContext("2d");
-        var ccols = ["red", "green", "blue", "orange"];
+        
+        drawColBoxes(colSel, selCtx, -1);
+        
+        colSel.addEventListener("mousedown", colSelected, false);
+        colSel.addEventListener("mousemove", moveSelected, false);
+        
+    }
+    
+    function drawColBoxes(canv, ctx, noDraw)
+    {
+        
+        ctx.clearRect(0, 0, canv.width, canv.height);
+        
         var th, tw;
+        
         for(var i in ccols){
+            if(i == noDraw)
+                continue;
             th = (Math.floor(i/2)) * 50;
             tw = (i % 2) * 50;
-            selCtx.fillStyle = ccols[i];
-            selCtx.fillRect((11*tw/10) + 20, th, 50, 50);
+            ctx.fillStyle = ccols[i];
+            ctx.fillRect((11*tw/10) + 95, (11*th/10) + 200, 50, 50);
         }
+      
+    }
+    
+    function inColGap(x, y)
+    {
+        if(x <= 95 || x >= 200 || y <= 200) // on the left, right or top
+            return true;
+        if(x >= 145 && x <= 150) // in the middle gap
+            return true;
+        if(y >= 200 + 55*(ccols.length/2)) // off the bottom
+            return true;
+        var checkY = y;
+        while(checkY >= 255)
+            checkY -= 55;
+        if(checkY >= 250) // in a row gap
+            return true;
+        return false;
+    }
+    
+    function colSelected(e)
+    {
+        var canvas = document.getElementById("colSelect");
+        var x = e.x - canvas.offsetLeft;
+        var y = e.y - canvas.offsetTop;
+
+        document.getElementById("bottomText").innerHTML = x.toString() + " " + y.toString();
+     
+        if(inColGap(x, y))
+            return;
+        
+        var colnum;
+        if(x <= 95 + 50 + 2)
+            colnum = 0;
+        else colnum = 1;
+        var rownum;
+        rownum = Math.floor((y - 200)/55);
+        
+        var colIndex = 2*rownum + colnum;
+        
+        document.getElementById("bottomText").innerHTML = colIndex.toString();
+        
+        drawColBoxes(canvas, canvas.getContext("2d"), colIndex);
+        
     }
     
     function checkBorder(e)
@@ -166,19 +227,14 @@
  
     </script>
     <style type="text/css">
-    canvas {border: 1px solid black; }
+    #canvas {border: 1px solid black; }
+    #colSelect {}
     </style>
   </head>
   <body>
-    <p>
     <canvas id="canvas" width="700" height="700"></canvas>
-    <canvas id="colQ" width="50" height="700"></canvas>
-    <canvas id="colSelect" width="125" height="526"></canvas> <!-- cannot exceed
-    526 ... WHY? -->
-    </p>
-    <p><br>
-    <button type="button" onclick="clearScn()">Clear</button>
-    </p>
-    <p>Site Under Construction</p>
+    <canvas id="colSelect" width="225" height="700"></canvas> 
+    <p><button type="button" onclick="clearScn()">Clear</button></p>
+    <p id="bottomText">Site Under Construction</p>
   </body>
 </html>
