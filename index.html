@@ -220,6 +220,8 @@
                 
                 curCols.splice(quePos, 0, ccols[colIndex]);
                 quePreview = quePos;
+                if(quePreview >= curCols.length)
+                    quePreview = curCols.length - 1;
             }
         }
         else
@@ -439,6 +441,6 @@
      Tempo: 
     <textarea id="tempoLabel" rows="1" cols="6" onchange="newTempo(this.value)"
     value=120.0> 120.0 </textarea></p>
-    <p id="bottomText">Site Under Construction</p>
+    <p id="bottomText">Site under construction. Please view in Google Chrome.</p>
   </body>
 </html>
