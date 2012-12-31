@@ -8,6 +8,8 @@
     document.addEventListener("mousemove", checkBorder, false);
     document.addEventListener("mouseup", mUp, false);    
     
+    var drawTime = 3000;
+    
     var mouseDown = 0;
     
     var colIndex = -1;
@@ -15,7 +17,10 @@
     //keep an even number of colors please!
     var ccols = ["red", "green", "blue", "orange"];    
     
-    var curCols = ["black", "orange", "red", "white"];
+    var queCols = ["black", "orange", "red"];
+    var curCols = ["black", "orange", "red"];
+    
+    var quePreview = -1;
     
     function init()
     {
@@ -36,8 +41,14 @@
     function mUp()
     {
         mouseDown = 0;
+        if(quePreview >= 0)
+        {
+            queCols = curCols.slice(0);
+            quePreview = -1;
+        }
+        colIndex = -1;
         var canv = document.getElementById("colSelect");
-        drawColBoxes(canv, canv.getContext("2d"), -1);
+        drawColBoxes(canv, canv.getContext("2d"), -1);        
     }
     
     function drawColBoxes(canv, ctx, noDraw)
@@ -45,12 +56,19 @@
         
         ctx.clearRect(0, 0, canv.width, canv.height);
         
-        for(var i in curCols)
+        if(quePreview >= 0)
+            var colQueue = curCols;
+        else var colQueue = queCols;
+        
+        for(var i in colQueue)
         {
-            if(curCols[i] == "white")
+            if(colQueue[i] == "white")
                 continue;
-            ctx.fillStyle = curCols[i];
+            if(i == quePreview)
+                ctx.globalAlpha = 0.25;
+            ctx.fillStyle = colQueue[i];
             ctx.fillRect(0, 55*i, 50, 50);
+            ctx.globalAlpha = 1.0;
         }
         
         var th, tw;
@@ -86,6 +104,7 @@
     {
         
         mouseDown = 2;
+        colIndex = -1;
         
         var canvas = document.getElementById("colSelect");
         var ctx = canvas.getContext("2d");
@@ -132,6 +151,9 @@
 
         if(mouseDown != 2)
             return;
+            
+        if(colIndex < 0)
+            return;
     
         var canvas = document.getElementById("colSelect");
         var ctx = canvas.getContext("2d");
@@ -140,7 +162,26 @@
     
         drawColBoxes(canvas, ctx, colIndex);
         ctx.fillStyle = ccols[colIndex];
-        ctx.fillRect(x - 25, y - 25, 50, 50);    
+        ctx.fillRect(x - 25, y - 25, 50, 50); 
+
+        if(x < 75)
+        {
+            var quePos = Math.floor((y - 25)/55);
+            if(quePos < 0)
+                quePos = 0;
+            if(quePos != quePreview)
+            {
+                if(quePreview >= 0)
+                    curCols.splice(quePreview, 1);
+                curCols.splice(quePos, 0, ccols[colIndex]);
+                quePreview = quePos;
+            }
+        }
+        else
+        {
+            quePreview = -1;
+            curCols = queCols.slice(0);
+        }
     }
     
     function checkBorder(e)
@@ -158,7 +199,10 @@
         if (x >= canvas.width || y >= canvas.height || x <= 0 || y <= 0)
         {
             if(mouseDown == 2)
+            {
                 drawColBoxes(canvas, canvas.getContext("2d"), -1);
+                colIndex = -1;
+            }
             mouseDown = 0;
         }    
     }
@@ -179,8 +223,6 @@
         var dis = Math.sqrt(Math.pow(absx,2)+Math.pow(absy,2));
         
         var ang = Math.atan(y/x);
-        
-        sqrs(350, 350, ctx, dis, "black", ang);
 
         function sqrCallback(col)
         {
@@ -189,11 +231,20 @@
             }
         }
         
+        var timeStep = drawTime/queCols.length;
+        
+        for(var i in queCols)
+        {
+            setTimeout(sqrCallback(queCols[i]), timeStep*i);
+        }
+        
+        /*
+        sqrs(350, 350, ctx, dis, "black", ang);
         setTimeout(sqrCallback("orange"), 1000);
         setTimeout(sqrCallback("red"), 2000);
        
         setTimeout(sqrCallback("white"), 3000);
-        
+        */
         /*
         circs(350, 350, ctx, dis, "black");
         
