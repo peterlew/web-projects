@@ -115,6 +115,12 @@
 
         document.getElementById("bottomText").innerHTML = x.toString() + " " + y.toString();
      
+        if(queHover >= 0)
+        {
+            queCols.splice(queHover, 1);
+            curCols = queCols.slice(0);
+        }
+     
         if(inColGap(x, y))
             return;
         
@@ -223,6 +229,12 @@
     
     function checkBorder(e)
     {
+        if(e.x < 700 && queHover >= 0)
+        {
+            queHover = -1;
+            var clrCan = document.getElementById("colSelect");
+            drawColBoxes(clrCan, clrCan.getContext("2d"), -1);
+        }
         if (mouseDown == 0) 
             return;
         if (mouseDown == 1)
