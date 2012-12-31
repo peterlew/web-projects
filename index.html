@@ -22,6 +22,8 @@
     
     var quePreview = -1;
     
+    var queHover = -1;
+    
     function init()
     {
         var canvas = document.getElementById("canvas");
@@ -149,16 +151,51 @@
     function moveSelected(e)
     {
 
+        var canvas = document.getElementById("colSelect");
+        var ctx = canvas.getContext("2d");      
+    
+        var x = e.x - canvas.offsetLeft;
+        var y = e.y - canvas.offsetTop;         
         if(mouseDown != 2)
+        {
+            if(x < 50 && y < 55*queCols.length)
+            {           
+                if(queHover >= 0)
+                    drawColBoxes(canvas, ctx, colIndex);
+                var checkY = y;
+                while(checkY > 55)
+                    checkY -= 55;
+                if(checkY >= 50)
+                    return;
+                queHover = Math.floor(y/55);
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(3, 55*queHover + 3);
+                ctx.lineTo(47, 55*queHover + 47);
+                ctx.moveTo(47, 55*queHover + 3);
+                ctx.lineTo(3, 55*queHover + 47); 
+                ctx.stroke();
+                ctx.strokeStyle = "red";
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(4, 55*queHover + 4);
+                ctx.lineTo(46, 55*queHover + 46);
+                ctx.moveTo(46, 55*queHover + 4);
+                ctx.lineTo(4, 55*queHover + 46); 
+                ctx.stroke();              
+            }
+            else if(queHover >= 0)
+            {
+                queHover = -1;
+                drawColBoxes(canvas, ctx, colIndex);
+            }
             return;
+        }
+        
             
         if(colIndex < 0)
-            return;
-    
-        var canvas = document.getElementById("colSelect");
-        var ctx = canvas.getContext("2d");
-        var x = e.x - canvas.offsetLeft;
-        var y = e.y - canvas.offsetTop;    
+            return; 
     
         drawColBoxes(canvas, ctx, colIndex);
         ctx.fillStyle = ccols[colIndex];
