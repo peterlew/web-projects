@@ -10,8 +10,12 @@
     
     var mouseDown = 0;
     
+    var colIndex = -1;
+    
     //keep an even number of colors please!
     var ccols = ["red", "green", "blue", "orange"];    
+    
+    var curCols = ["black", "orange", "red", "white"];
     
     function init()
     {
@@ -40,6 +44,14 @@
     {
         
         ctx.clearRect(0, 0, canv.width, canv.height);
+        
+        for(var i in curCols)
+        {
+            if(curCols[i] == "white")
+                continue;
+            ctx.fillStyle = curCols[i];
+            ctx.fillRect(0, 55*i, 50, 50);
+        }
         
         var th, tw;
         
@@ -92,19 +104,9 @@
         var rownum;
         rownum = Math.floor((y - 200)/55);
         
-        var colIndex = 2*rownum + colnum;
+        colIndex = 2*rownum + colnum;
         
         document.getElementById("bottomText").innerHTML = colIndex.toString();
-        
-        var boxX = (11*((colIndex % 2) * 50)/10) + 95;
-        var boxY = (11*(Math.floor(colIndex/2) * 50)/10) + 200;
-        
-        var desX = x - 25;
-        var desY = y - 25;
-        
-        drawColBoxes(canvas, ctx, colIndex);
-        ctx.fillStyle = ccols[colIndex];
-        ctx.fillRect(desX, desY, 50, 50);
         
         /* Animation -- not really working
         while(boxX != desX || boxY != desY)
@@ -123,6 +125,22 @@
         }
         */
         
+    }
+    
+    function moveSelected(e)
+    {
+
+        if(mouseDown != 2)
+            return;
+    
+        var canvas = document.getElementById("colSelect");
+        var ctx = canvas.getContext("2d");
+        var x = e.x - canvas.offsetLeft;
+        var y = e.y - canvas.offsetTop;    
+    
+        drawColBoxes(canvas, ctx, colIndex);
+        ctx.fillStyle = ccols[colIndex];
+        ctx.fillRect(x - 25, y - 25, 50, 50);    
     }
     
     function checkBorder(e)
