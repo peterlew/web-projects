@@ -8,17 +8,16 @@
     document.addEventListener("mousemove", checkBorder, false);
     document.addEventListener("mouseup", mUp, false);    
     
-    var drawTime = 3000;
-    
     var mouseDown = 0;
     
     var colIndex = -1;
     
     //keep an even number of colors please!
-    var ccols = ["red", "green", "blue", "orange"];    
+    var ccols = ["red", "green", "blue", "orange", "black", "purple",
+                 "silver", "yellow", "teal", "maroon"];    
     
     var queCols = ["black", "orange", "red"];
-    var curCols = ["black", "orange", "red"];
+    var curCols = queCols.slice(0);
     
     var quePreview = -1;
     
@@ -209,13 +208,16 @@
 
         if(x < 75)
         {
-            var quePos = Math.floor((y - 25)/55);
+            var quePos = Math.floor(y/55);
+            if(quePos > curCols.length)
+                quePos = curCols.length;
             if(quePos < 0)
-                quePos = 0;
+                quePos = 0;                
             if(quePos != quePreview)
             {
                 if(quePreview >= 0)
                     curCols.splice(quePreview, 1);
+                
                 curCols.splice(quePos, 0, ccols[colIndex]);
                 quePreview = quePos;
             }
@@ -280,7 +282,7 @@
             }
         }
         
-        var timeStep = drawTime/queCols.length;
+        var timeStep = curMilliDiff;
         
         for(var i in queCols)
         {
@@ -389,17 +391,54 @@
         ctx.restore();
         
    }
+   
+   var curTempo = 120;
+   var curMilliDiff = 1000;
+   var lastTime = 0;
+   
+   function updateTempo()
+   {
+        var d = new Date();
+        var tm = d.getTime();
+        if(lastTime == 0)
+        {
+            lastTime = tm;
+            return;
+        }
+        var deltaT = tm - lastTime;
+        var bpm = 60000/deltaT;
+        curTempo = (curTempo + bpm)/2;
+        curMilliDiff = 120000/curTempo
+        lastTime = tm;
+        document.getElementById("tempoLabel").value = curTempo.toFixed(1);
+   }
+   
+   function newTempo(val)
+   {
+        var newTmp = parseFloat(val);
+        if(newTmp > 10 && newTmp < 500)
+        {
+            curTempo = newTmp;
+            curMilliDiff = 120000/curTempo;
+            lastTime = 0;
+        }
+   }
  
     </script>
     <style type="text/css">
     #canvas {border: 1px solid black; }
     #colSelect {}
+    #tempoLabel {resize: none;}
     </style>
   </head>
   <body>
     <canvas id="canvas" width="700" height="700"></canvas>
-    <canvas id="colSelect" width="225" height="700"></canvas> 
-    <p><button type="button" onclick="clearScn()">Clear</button></p>
+    <canvas id="colSelect" width="400" height="700"></canvas> 
+    <p><button type="button" onclick="clearScn()">Clear</button>
+       <button id="tapButton" type="button" onclick="updateTempo()">Tap</button>
+     Tempo: 
+    <textarea id="tempoLabel" rows="1" cols="6" onchange="newTempo(this.value)"
+    value=120.0> 120.0 </textarea></p>
     <p id="bottomText">Site Under Construction</p>
   </body>
 </html>
