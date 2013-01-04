@@ -26,7 +26,13 @@ circBox.src = "nimg/circ_sprite_solo.png";
 var triBox = new Image();
 triBox.src = "nimg/tri_sprite_solo.png";
 
-var activeBoxes = [2];
+var kcurBox = new Image();
+kcurBox.src = "nimg/kcur_sprite_solo.png";
+
+var snowBox = new Image();
+snowBox.src = "nimg/snow_sprite_solo.png";
+
+var activeBoxes = [0];
 
 function init()
 {
@@ -47,6 +53,14 @@ function init()
     
     triBox.onload = function(){
         selCtx.drawImage(triBox, 165, 545);
+    };
+    
+    kcurBox.onload = function(){
+        selCtx.drawImage(kcurBox, 5, 625);
+    };
+    
+    snowBox.onload = function(){
+        selCtx.drawImage(snowBox, 85, 625);
     };
     
     drawColBoxes(colSel, selCtx, -1);      
@@ -113,6 +127,8 @@ function drawColBoxes(canv, ctx, noDraw)
     ctx.drawImage(sqrBox, 5, 545);
     ctx.drawImage(circBox, 85, 545);
     ctx.drawImage(triBox, 165, 545);
+    ctx.drawImage(kcurBox, 5, 625);
+    ctx.drawImage(snowBox, 85, 625);
        
 }
 
@@ -348,6 +364,12 @@ function draw(e)
         },
                 function(){
             tris(350, 350, ctx, dis, col, ang);
+        },
+                function(){
+            kCurve(350, 350, x + 350, (-1*y) + 350, ctx, col, 5);
+        },
+                function(){
+            snows(ctx, dis, col, ang);
         }
         ]
     }
@@ -367,7 +389,7 @@ function draw(e)
             activeBoxes[j]), timeStep*i);
         }
     }
-    
+  
 
 }
 
@@ -425,31 +447,104 @@ function sqrs(x, y, ctx, dis, col, rot)
 }
 
 function tris(x, y, ctx, dist, col, rot)
-{
-    if(dist < 20) 
-        return;
-    
+{   
     var rads = rot + Math.PI/4;
     var dis = Math.sqrt(2)*dist;
-    
-    document.getElementById("bottomText").innerHTML = rot.toFixed(3);
     
     var d1x = dis*Math.cos(rads);
     var d1y = dis*Math.sin(rads);
     var d2x = dis*Math.cos(rads-Math.PI/2);
     var d2y = dis*Math.sin(rads-Math.PI/2);
-    
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x+d1x, y-d1y);
-    ctx.lineTo(x+d2x, y-d2y);
-    ctx.lineTo(x, y);
-    ctx.strokeStyle = col;
-    ctx.stroke();
+
+    if(dis < 20)
+    {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x+d1x, y-d1y);
+        ctx.lineTo(x+d2x, y-d2y);
+        ctx.lineTo(x, y);
+        ctx.strokeStyle = col;
+        ctx.stroke();
+        return;
+    }
     
     tris(x, y, ctx, dist/2, col, rot);
     tris(x + d1x/2, y - d1y/2, ctx, dist/2, col, rot);
     tris(x + d2x/2, y - d2y/2, ctx, dist/2, col, rot);
+}
+
+function snows(ctx, dist, col, rot)
+{
+    
+    var p1x = 350 + dist*Math.cos(rot);
+    var p1y = 350 - dist*Math.sin(rot);
+    var p2x = 350 + dist*Math.cos(rot + 2*Math.PI/3);
+    var p2y = 350 - dist*Math.sin(rot + 2*Math.PI/3);
+    var p3x = 350 + dist*Math.cos(rot + 4*Math.PI/3);
+    var p3y = 350 - dist*Math.sin(rot + 4*Math.PI/3);
+    
+    kCurve(p1x, p1y, p2x, p2y, ctx, col, 25);
+    kCurve(p2x, p2y, p3x, p3y, ctx, col, 25);
+    kCurve(p3x, p3y, p1x, p1y, ctx, col, 25);
+    
+}
+
+function kCurve(x1, y1u, x2, y2u, ctx, col, lim)
+{  
+    
+    var y1 = 700 - y1u;
+    var y2 = 700 - y2u;
+    
+    var p1x = (2/3)*x1 + (1/3)*x2;
+    var p1y = (2/3)*y1 + (1/3)*y2;
+    var p2x = (1/3)*x1 + (2/3)*x2;
+    var p2y = (1/3)*y1 + (2/3)*y2;
+    
+    var dist = Math.sqrt(Math.pow(x2-x1,2)+Math.pow(y2-y1,2));
+    
+    if(x1 == x2)
+    {
+        if(y2 < y1)
+            var theta = -Math.PI/2;
+        else var theta = Math.PI/2;
+    }
+    else var theta = Math.atan((y2-y1)/(x2-x1));
+    
+    if(x2-x1 < 0)
+        theta += Math.PI;
+    /*
+    if(x2 > x1)
+        var ntheta = theta - Math.PI/6;
+    else var ntheta = theta + Math.PI/6;
+    */
+    
+    var ntheta = theta - Math.PI/6;
+    
+    var ndist = Math.sqrt(3)*dist/3;
+    
+    var p3x = x1 + ndist*Math.cos(ntheta);
+    var p3y = y1 + ndist*Math.sin(ntheta);
+    
+    if(dist < lim)
+    {
+        ctx.beginPath();
+        ctx.moveTo(x1, 700 - y1);
+        ctx.lineTo(p1x, 700 - p1y);
+        ctx.lineTo(p3x, 700 - p3y);
+        ctx.lineTo(p2x, 700 - p2y);
+        ctx.lineTo(x2, 700 - y2);
+        
+        ctx.strokeStyle = col;
+        ctx.stroke();
+    }
+    else
+    {
+        kCurve(x1, 700 - y1, p1x, 700 - p1y, ctx, col, lim);
+        kCurve(p1x, 700 - p1y, p3x, 700 - p3y, ctx, col, lim);
+        kCurve(p3x, 700 - p3y, p2x, 700 - p2y, ctx, col, lim);
+        kCurve(p2x, 700 - p2y, x2, 700 - y2, ctx, col, lim);
+    }
+
 }
 
 function clearScn()
