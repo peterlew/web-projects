@@ -20,7 +20,13 @@ var queHover = -1;
 var sqrBox = new Image();
 sqrBox.src = "nimg/sqr_sprite_solo.png"; 
 
-var activeBoxes = [0];
+var circBox = new Image();
+circBox.src = "nimg/circ_sprite_solo.png";
+
+var triBox = new Image();
+triBox.src = "nimg/tri_sprite_solo.png";
+
+var activeBoxes = [2];
 
 function init()
 {
@@ -33,6 +39,14 @@ function init()
     
     sqrBox.onload = function(){
         selCtx.drawImage(sqrBox, 5, 545);
+    };
+    
+    circBox.onload = function(){
+        selCtx.drawImage(circBox, 85, 545);
+    };
+    
+    triBox.onload = function(){
+        selCtx.drawImage(triBox, 165, 545);
     };
     
     drawColBoxes(colSel, selCtx, -1);      
@@ -97,6 +111,8 @@ function drawColBoxes(canv, ctx, noDraw)
     }
     ctx.globalAlpha = 1.0;
     ctx.drawImage(sqrBox, 5, 545);
+    ctx.drawImage(circBox, 85, 545);
+    ctx.drawImage(triBox, 165, 545);
        
 }
 
@@ -157,10 +173,7 @@ function colSelected(e)
         var colnum;
         colnum = Math.floor(x/80);
         var newSel = 3*rownum + colnum;
-        var lookFor = activeBoxes.indexOf(newSel);
-        if(lookFor >= 0)
-            activeBoxes.splice(lookFor, 1);
-        else activeBoxes.push(newSel);
+        activeBoxes = [newSel];
         return;
     }
     
@@ -309,63 +322,52 @@ function draw(e)
     var canvas = document.getElementById("canvas");   
     var ctx = canvas.getContext("2d");
     var x = e.x - this.offsetLeft - 350;
-    var y = e.y - this.offsetTop - 350;
+    var y = 350 - e.y - this.offsetTop;
     
     var absx = Math.abs(x);
     var absy = Math.abs(y);
     var dis = Math.sqrt(Math.pow(absx,2)+Math.pow(absy,2));
     
-    var ang = Math.atan(y/x);
-
-    function sqrCallback(col)
+    var ang;
+    if(x == 0)
     {
-        return function(){
+        if(y >= 0)
+            ang = Math.PI/2;
+        else ang = -1*Math.PI/2;
+    }
+    else ang = Math.atan(y/x);
+    if(x < 0)
+        ang += Math.PI;
+
+    var shapeFuncs = function(col){
+              return [function(){
             sqrs(350, 350, ctx, dis, col, ang);
+        }, 
+                function(){
+            circs(350, 350, ctx, dis, col);
+        },
+                function(){
+            tris(350, 350, ctx, dis, col, ang);
         }
+        ]
+    }
+
+    function shapeCallback(col, i)
+    {
+        return shapeFuncs(col)[i];
     }
     
     var timeStep = curMilliDiff;
-    
+ 
     for(var i in queCols)
     {
-        setTimeout(sqrCallback(queCols[i]), timeStep*i);
-    }
-    
-    /*
-    sqrs(350, 350, ctx, dis, "black", ang);
-    setTimeout(sqrCallback("orange"), 1000);
-    setTimeout(sqrCallback("red"), 2000);
-   
-    setTimeout(sqrCallback("white"), 3000);
-    */
-    /*
-    circs(350, 350, ctx, dis, "black");
-    
-    function circCallback(col)
-    {
-        return function(){
-            circs(350, 350, ctx, dis, col);
+        for(var j in activeBoxes)
+        {
+            setTimeout(shapeCallback(queCols[i], 
+            activeBoxes[j]), timeStep*i);
         }
     }
     
-    setTimeout(circCallback("orange"), 1000);
-    setTimeout(circCallback("red"), 2000);
-    setTimeout(circCallback("white"), 3000);
-    */
-    
-    /* Silly thing for doing all the colors!
-    // 255/17 = 15. That's useful!
-    // 17^3 = 4913
-    for (var i = 0; i < 4913; i++)
-    {
-        var r = 15*Math.floor(i/289); 
-        var g = 15*Math.floor((i-(r*289/15))/17);
-        var b = 15*Math.floor(i%17);
-        var ccol = "rgb(" + r.toString() + "," + g.toString() + "," +
-                   b.toString() + ")";
-        setTimeout(circCallback(ccol), i);
-    }
-    */
 
 }
 
@@ -405,7 +407,7 @@ function sqrs(x, y, ctx, dis, col, rot)
     var cy = new Array();
     for (var i = 0; i < 4; i++){
         cx[i] = x + dis*Math.cos(rads+(i*Math.PI/2));
-        cy[i] = y + dis*Math.sin(rads+(i*Math.PI/2));
+        cy[i] = y - dis*Math.sin(rads+(i*Math.PI/2));
     }
     if (col == "white")
         ctx.lineWidth = 3;
@@ -420,6 +422,34 @@ function sqrs(x, y, ctx, dis, col, rot)
     for (var i = 0; i < 4; i++)
         sqrs(cx[i], cy[i], ctx, dis/3, col, rot+Math.PI/4);
     
+}
+
+function tris(x, y, ctx, dist, col, rot)
+{
+    if(dist < 20) 
+        return;
+    
+    var rads = rot + Math.PI/4;
+    var dis = Math.sqrt(2)*dist;
+    
+    document.getElementById("bottomText").innerHTML = rot.toFixed(3);
+    
+    var d1x = dis*Math.cos(rads);
+    var d1y = dis*Math.sin(rads);
+    var d2x = dis*Math.cos(rads-Math.PI/2);
+    var d2y = dis*Math.sin(rads-Math.PI/2);
+    
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x+d1x, y-d1y);
+    ctx.lineTo(x+d2x, y-d2y);
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = col;
+    ctx.stroke();
+    
+    tris(x, y, ctx, dist/2, col, rot);
+    tris(x + d1x/2, y - d1y/2, ctx, dist/2, col, rot);
+    tris(x + d2x/2, y - d2y/2, ctx, dist/2, col, rot);
 }
 
 function clearScn()
