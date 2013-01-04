@@ -17,6 +17,11 @@ var quePreview = -1;
 
 var queHover = -1;
 
+var sqrBox = new Image();
+sqrBox.src = "nimg/sqr_sprite_solo.png"; 
+
+var activeBox = [0];
+
 function init()
 {
     var canvas = document.getElementById("canvas");
@@ -24,9 +29,13 @@ function init()
     canvas.addEventListener("mousedown", function(){mouseDown=1;}, false);
     
     var colSel = document.getElementById("colSelect");
-    var selCtx = colSel.getContext("2d");
+    var selCtx = colSel.getContext("2d");   
     
-    drawColBoxes(colSel, selCtx, -1);
+    sqrBox.onload = function(){
+        selCtx.drawImage(sqrBox, 0, 625);
+    };
+    
+    drawColBoxes(colSel, selCtx, -1);      
     
     colSel.addEventListener("mousedown", colSelected, false);
     colSel.addEventListener("mousemove", moveSelected, false);
@@ -49,7 +58,7 @@ function mUp()
 function drawColBoxes(canv, ctx, noDraw)
 {
     
-    ctx.clearRect(0, 0, canv.width, canv.height);
+    ctx.clearRect(0, 0, canv.width, canv.height);  
     
     if(quePreview >= 0)
         var colQueue = curCols;
@@ -76,7 +85,9 @@ function drawColBoxes(canv, ctx, noDraw)
         ctx.fillStyle = ccols[i];
         ctx.fillRect((11*tw/10) + 95, (11*th/10) + 200, 50, 50);
     }
-  
+    
+    ctx.drawImage(sqrBox, 5, 545);
+       
 }
 
 function inColGap(x, y)
