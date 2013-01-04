@@ -20,7 +20,7 @@ var queHover = -1;
 var sqrBox = new Image();
 sqrBox.src = "nimg/sqr_sprite_solo.png"; 
 
-var activeBox = [0];
+var activeBoxes = [0];
 
 function init()
 {
@@ -32,7 +32,7 @@ function init()
     var selCtx = colSel.getContext("2d");   
     
     sqrBox.onload = function(){
-        selCtx.drawImage(sqrBox, 0, 625);
+        selCtx.drawImage(sqrBox, 5, 545);
     };
     
     drawColBoxes(colSel, selCtx, -1);      
@@ -86,6 +86,16 @@ function drawColBoxes(canv, ctx, noDraw)
         ctx.fillRect((11*tw/10) + 95, (11*th/10) + 200, 50, 50);
     }
     
+    ctx.fillStyle = "lime";
+    var bIndex;
+    ctx.globalAlpha = 0.85;
+    for(var i in activeBoxes)
+    {
+        bIndex = activeBoxes[i];
+        ctx.fillRect(5 + 80*(bIndex % 3), 545 + 80*(Math.floor(bIndex/3)), 
+                    75, 75);
+    }
+    ctx.globalAlpha = 1.0;
     ctx.drawImage(sqrBox, 5, 545);
        
 }
@@ -106,6 +116,19 @@ function inColGap(x, y)
     return false;
 }
 
+function inFracGap(x, y)
+{
+    if(x <= 5 || x >= 240 || y <= 545 || y >= 700)
+        return true;
+    if(y <= 545+80 && y >= 545+75) // middle row gap
+        return true;
+    if(x >= 80 && x <= 85) // 1st col gap
+        return true;
+    if(x >= 160 && x <= 165) // 2nd col gap
+        return true;
+    return false;
+}
+
 function colSelected(e)
 {
     
@@ -116,8 +139,6 @@ function colSelected(e)
     var ctx = canvas.getContext("2d");
     var x = e.x - canvas.offsetLeft;
     var y = e.y - canvas.offsetTop;
-
-    document.getElementById("bottomText").innerHTML = x.toString() + " " + y.toString();
  
     if(queHover >= 0)
     {
@@ -126,7 +147,22 @@ function colSelected(e)
     }
  
     if(inColGap(x, y))
+    {
+        if(inFracGap(x, y))
+            return;
+        var rownum;
+        if(y <= 545 + 75 + 2)
+            rownum = 0;
+        else rownum = 1;
+        var colnum;
+        colnum = Math.floor(x/80);
+        var newSel = 3*rownum + colnum;
+        var lookFor = activeBoxes.indexOf(newSel);
+        if(lookFor >= 0)
+            activeBoxes.splice(lookFor, 1);
+        else activeBoxes.push(newSel);
         return;
+    }
     
     var colnum;
     if(x <= 95 + 50 + 2)
@@ -137,7 +173,6 @@ function colSelected(e)
     
     colIndex = 2*rownum + colnum;
     
-    document.getElementById("bottomText").innerHTML = colIndex.toString();
     
     /* Animation -- not really working
     while(boxX != desX || boxY != desY)
