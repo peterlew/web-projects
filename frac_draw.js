@@ -32,7 +32,12 @@ kcurBox.src = "nimg/kcur_sprite_solo.png";
 var snowBox = new Image();
 snowBox.src = "nimg/snow_sprite_solo.png";
 
+var starBox = new Image();
+starBox.src = "nimg/star_sprite_solo.png";
+
 var activeBoxes = [0];
+
+var aPilot = false;
 
 function init()
 {
@@ -61,6 +66,10 @@ function init()
     
     snowBox.onload = function(){
         selCtx.drawImage(snowBox, 85, 625);
+    };
+    
+    starBox.onload = function(){
+        selCtx.drawImage(starBox, 165, 625);
     };
     
     drawColBoxes(colSel, selCtx, -1);      
@@ -129,6 +138,7 @@ function drawColBoxes(canv, ctx, noDraw)
     ctx.drawImage(triBox, 165, 545);
     ctx.drawImage(kcurBox, 5, 625);
     ctx.drawImage(snowBox, 85, 625);
+    ctx.drawImage(starBox, 165, 625);
        
 }
 
@@ -201,24 +211,6 @@ function colSelected(e)
     rownum = Math.floor((y - 200)/55);
     
     colIndex = 2*rownum + colnum;
-    
-    
-    /* Animation -- not really working
-    while(boxX != desX || boxY != desY)
-    {
-        drawColBoxes(canvas, ctx, colIndex);
-        ctx.fillStyle = ccols[colIndex];
-        ctx.fillRect(boxX, boxY, 50, 50);
-        if(boxX < desX)
-            boxX++;
-        else if(boxX > dexX)
-            boxX--;
-        if(boxY < desY)
-            boxY++;
-        else if(boxY > desY)
-            boxY--;
-    }
-    */
     
 }
 
@@ -370,6 +362,9 @@ function draw(e)
         },
                 function(){
             snows(ctx, dis, col, ang);
+        },
+                function(){
+            stars(350, 350, ctx, dis, col, ang);
         }
         ]
     }
@@ -380,7 +375,7 @@ function draw(e)
     }
     
     var timeStep = curMilliDiff;
- 
+    
     for(var i in queCols)
     {
         for(var j in activeBoxes)
@@ -389,7 +384,6 @@ function draw(e)
             activeBoxes[j]), timeStep*i);
         }
     }
-  
 
 }
 
@@ -545,6 +539,33 @@ function kCurve(x1, y1u, x2, y2u, ctx, col, lim)
         kCurve(p2x, 700 - p2y, x2, 700 - y2, ctx, col, lim);
     }
 
+}
+
+function stars(x, y, ctx, dis, col, rot)
+{
+    var px = new Array();
+    var py = new Array();
+    for(var i = 0; i < 5; i++)
+    {
+        px[i] = x + dis*Math.cos(rot + 2*i*Math.PI/5);
+        py[i] = y - dis*Math.sin(rot + 2*i*Math.PI/5);
+    }
+    
+    ctx.beginPath();
+    ctx.moveTo(px[0], py[0]);
+    ctx.lineTo(px[2], py[2]);
+    ctx.lineTo(px[4], py[4]);
+    ctx.lineTo(px[1], py[1]);
+    ctx.lineTo(px[3], py[3]);
+    ctx.lineTo(px[0], py[0]);
+    
+    ctx.strokeStyle = col;
+    ctx.stroke();
+    
+    if(dis > 20)
+        stars(x, y, ctx, Math.cos(72*Math.PI/180)*dis/Math.cos(36*Math.PI/180), 
+        col, rot + Math.PI/5);
+    
 }
 
 function clearScn()
