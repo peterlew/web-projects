@@ -25,20 +25,30 @@ var colIndex = -1;
 var ccols = ["red", "green", "blue", "orange", "black", "purple",
              "silver", "yellow", "teal", "maroon"];    
 
-var queCols = ["black", "orange", "red"];
+var queCols = ["red", "black", "orange"];
+
 var curCols = queCols.slice(0);
 
 var activeBoxes = [0];
 
 var counter = 0;
+var changeCounter = 0;
 
 var dis = 100;
 
 var ang = 0.0;
+var delta = 0.01;
+
+var timeMin = 240;
+var timeMax = 1000;
+
+var rotTime = Math.floor((timeMax - timeMin)*Math.random()) + timeMin;
+var cChangeThresh = 165;
 
 var sigArray = dancer.getSpectrum();
 var lastSigs = new Float32Array(sigArray.length);
 var sum;
+var lastSum;
 var mult = 40;
 var scale = 2.0;
 
@@ -58,7 +68,12 @@ function player()
     //10 and 1.5 work pretty well
         sum += sigArray[i]*1000*mult/Math.pow((i+10), scale);
     }
-
+    if(sum < lastSum){
+        sum = lastSum - 5;
+    }
+    if(sum > lastSum + cChangeThresh){
+        queCols = pickFromList(ccols, 3);
+    }
     dis = sum;
     draw();
     lastSum = sum;
@@ -111,7 +126,7 @@ function draw()
         return shapeFuncs(col)[i];
     }
     
-    var timeStep = curMilliDiff;
+    var timeStep = Math.floor(curMilliDiff);
     
     for(var i in queCols)
     {
@@ -122,8 +137,56 @@ function draw()
         }
     }
 
-    ang += 0.01;
+    ang += delta;
+    counter += 1;
 
+    if(counter >= rotTime){
+        counter = 0;
+        rotTime = Math.floor(760*Math.random()) + 240;
+        delta *= Math.random()/2.5 - 1.40;
+        changeCounter += 1;
+    }
+
+    if(changeCounter >= 3){
+        activeBoxes[0] = genIndex(6);
+        changeCounter = 0;
+    }
+
+}
+
+//sometimes we want to pick, say, 3 new colors from the color list
+//this should be good for small lists
+function pickFromList(origList, n)
+{
+    //clone the array
+    var lst = origList.slice(0);
+    var r = new Array();
+    var totLen = lst.length;
+    var curLen = totLen;
+
+    if(n >= totLen){
+        return lst;
+    }
+
+    var i, j, p;
+
+    //picks an element, then shifts everything left and narrows the range
+    for(i = 0; i < n; i++){
+        p = genIndex(curLen);
+        r[i] = lst[p];
+        for(j = p + 1; j < totLen; j++){
+            lst[j-1] = lst[j];
+        }
+        curLen--;
+    }
+
+    return r;
+
+}
+
+function genIndex(n)
+{
+    return Math.floor(n*Math.random());
 }
 
 function circs(x, y, ctx, sze, col)
@@ -319,7 +382,7 @@ function clearScn()
     
 }
 
-var curTempo = 69;
+var curTempo = 138;
 var curMilliDiff = 120000/curTempo;
 var lastTime = 0;
 
