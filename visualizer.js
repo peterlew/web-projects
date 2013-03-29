@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", init, false); 
 
-var AUDIO_FILE = 'audio/walking';
+var AUDIO_FILE = 'audio/a_pat';
 var dancer;
 
 Dancer.setOptions({
@@ -43,7 +43,8 @@ var timeMin = 240;
 var timeMax = 1000;
 
 var rotTime = Math.floor((timeMax - timeMin)*Math.random()) + timeMin;
-var cChangeThresh = 165;
+//165 was good for walking, ad_pat more like 180
+var cChangeThresh = 190;
 
 var sigArray = dancer.getSpectrum();
 var lastSigs = new Float32Array(sigArray.length);
@@ -145,11 +146,16 @@ function draw()
         rotTime = Math.floor(760*Math.random()) + 240;
         delta *= Math.random()/2.5 - 1.40;
         changeCounter += 1;
+        colCounter += 1;
     }
 
     if(changeCounter >= 3){
         activeBoxes[0] = genIndex(6);
         changeCounter = 0;
+    }
+
+    if(Math.random() < 0.002){
+        queCols = pickFromList(ccols, 3);
     }
 
 }
