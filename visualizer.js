@@ -3,6 +3,12 @@ document.addEventListener("DOMContentLoaded", init, false);
 var AUDIO_FILE = 'audio/a_pat';
 var dancer;
 
+//walking is 138
+//ald_pat around 92.5
+var curTempo = 92.5;
+var curMilliDiff = 120000/curTempo;
+
+
 Dancer.setOptions({
     flashSWF : 'lib/soundmanager2.swf',
     flashJS  : 'lib/soundmanager2.js'
@@ -10,22 +16,86 @@ Dancer.setOptions({
 
 dancer = new Dancer();
 
-dancer.load({ src: AUDIO_FILE, codecs: [ 'ogg', 'mp3' ]});
+dancer.load({ codecs: [ 'ogg', 'mp3' ]});
 
-Dancer.isSupported() || loaded();
-!dancer.isLoaded()? dancer.bind( 'loaded', loaded ) : loaded();
+
+function chooseSong(elem)
+{
+    if(elem.id == 'loading'){
+        AUDIO_FILE = 'audio/a_pat';
+        curTempo = 92.5;
+        document.getElementById('msong').innerHTML = "music: aldgate patterns by ";
+        document.getElementById('mlink').setAttribute("href", "https://soundcloud.com/littlepeoplemusic");
+        document.getElementById('mlink').innerHTML = "little people";
+    } 
+    else if(elem.id == 'btn2'){
+        AUDIO_FILE = 'audio/walking';
+        curTempo = 138;
+        document.getElementById("msong").innerHTML = "music: walking in the air by ";
+        document.getElementById("mlink").href = "https://soundcloud.com/chicken-sink";
+        document.getElementById('mlink').innerHTML = "chicken sink";
+    }
+    else if(elem.id == 'btn3'){
+        AUDIO_FILE = 'audio/conduit';
+        curTempo = 90;
+        document.getElementById("msong").innerHTML = "music: conduit by ";
+        document.getElementById("mlink").href = "http://www.umphreys.com/main.php";
+        document.getElementById('mlink').innerHTML = "umphrey's mcgee";
+    }    
+    else if(elem.id == 'btn4'){
+        AUDIO_FILE = 'audio/forward';
+        curTempo = 112;
+        document.getElementById("msong").innerHTML = "music: something to look forward to by ";
+        document.getElementById("mlink").href = "http://www.spoontheband.com";
+        document.getElementById('mlink').innerHTML = "spoon";
+    }   
+    else if(elem.id == 'btn5'){
+        AUDIO_FILE = 'audio/guyseyes';
+        curTempo = 116;
+        document.getElementById("msong").innerHTML = "music: guys eyes by ";
+        document.getElementById("mlink").href = "http://animalcollective.org";
+        document.getElementById('mlink').innerHTML = "animal collective";
+    }       
+
+    curMilliDiff = 120000/curTempo;
+
+    var btnArray = document.getElementsByClassName("btn");
+    for(var i = 0; i < btnArray.length; i++){
+        btnArray[i].innerHTML = "";
+        btnArray[i].style.display = 'none';
+    }
+
+    document.getElementById('loading').innerHTML = "Loading...";
+
+    dancer.load({ src: AUDIO_FILE, codecs: [ 'ogg', 'mp3' ]});
+
+    Dancer.isSupported() || loaded();
+    !dancer.isLoaded()? dancer.bind( 'loaded', loaded ) : loaded();
+
+    var supported = Dancer.isSupported();
+
+    if ( !supported ) {
+        var p;
+        p = document.createElement('P');
+        p.appendChild( document.createTextNode( 'Your browser does not currently support either Web Audio API or Audio Data API. The audio may play, but the visualizers will not move to the music; check out the latest Chrome or Firefox browsers!' ) );
+        loading.appendChild( p );
+    }    
+
+}
 
 function loaded()
 {
     dancer.play();
+    console.log(curTempo);
+    document.getElementById("loading").style.display = 'none';
 }
 
 var colIndex = -1;
 
-var ccols = ["red", "green", "blue", "orange", "black", "purple",
-             "silver", "yellow", "teal", "maroon"];    
+var ccols = ["red", "green", "blue", "orange", "pink", "purple",
+             "silver", "yellow", "teal", "maroon", "white"];    
 
-var queCols = ["red", "black", "orange"];
+var queCols = ["red", "black", "orange", "black"];
 
 var curCols = queCols.slice(0);
 
@@ -43,8 +113,8 @@ var timeMin = 240;
 var timeMax = 1000;
 
 var rotTime = Math.floor((timeMax - timeMin)*Math.random()) + timeMin;
-//165 was good for walking, ad_pat more like 180
-var cChangeThresh = 190;
+//165 was good for walking, ad_pat more like 200
+var cChangeThresh = 200;
 
 var sigArray = dancer.getSpectrum();
 var lastSigs = new Float32Array(sigArray.length);
@@ -73,7 +143,7 @@ function player()
         sum = lastSum - 5;
     }
     if(sum > lastSum + cChangeThresh){
-        queCols = pickFromList(ccols, 3);
+        newColors();
     }
     dis = sum;
     draw();
@@ -96,28 +166,49 @@ function draw()
     var ctx = canvas.getContext("2d");
     var x = dis*Math.cos(ang);
     var y = dis*Math.sin(ang);
+    var dist = dis;
+    var angl = ang;
     
     var absx = Math.abs(x);
     var absy = Math.abs(y);
     
     var shapeFuncs = function(col){
               return [function(){
-            sqrs(350, 350, ctx, dis, col, ang);
+            if(col == "black")
+                ctx.lineWidth = 3;
+            else ctx.lineWidth = 1;
+            sqrs(350, 350, ctx, dist, col, angl);
         }, 
                 function(){
-            circs(350, 350, ctx, dis, col);
+            if(col == "black")
+                ctx.lineWidth = 3;
+            else ctx.lineWidth = 1;
+
+            circs(350, 350, ctx, dist, col);
         },
                 function(){
-            tris(350, 350, ctx, dis, col, ang);
+            if(col == "black")
+                ctx.lineWidth = 3;
+            else ctx.lineWidth = 1;
+            tris(350, 350, ctx, dist, col, angl);
         },
                 function(){
-            kCurve(350, 350, x + 350, (-1*y) + 350, ctx, col, 5);
+            if(col == "black")
+                ctx.lineWidth = 3;
+            else ctx.lineWidth = 1;
+            kCurve(350, 350, x + 350, (-1*y) + 350, ctx, col, 25);
         },
                 function(){
-            snows(ctx, dis, col, ang);
+            if(col == "black")
+                ctx.lineWidth = 3;
+            else ctx.lineWidth = 1;
+            snows(ctx, dist, col, angl);
         },
                 function(){
-            stars(350, 350, ctx, dis, col, ang);
+            if(col == "black")
+                ctx.lineWidth = 3;
+            else ctx.lineWidth = 1;
+            stars(350, 350, ctx, dist, col, angl);
         }
         ]
     }
@@ -137,6 +228,11 @@ function draw()
             activeBoxes[j]), timeStep*i);
         }
     }
+    /*for(var j in activeBoxes)
+    {
+        setTimeout(shapeCallback("black",
+            activeBoxes[j]), timeStep*queCols.length);
+    }*/
 
     ang += delta;
     counter += 1;
@@ -144,20 +240,29 @@ function draw()
     if(counter >= rotTime){
         counter = 0;
         rotTime = Math.floor(760*Math.random()) + 240;
-        delta *= Math.random()/2.5 - 1.40;
+        delta *= Math.random()/2.5 - 1.40; //this will speed up a lot, 
+                                           //but it's good
         changeCounter += 1;
-        colCounter += 1;
     }
 
     if(changeCounter >= 3){
         activeBoxes[0] = genIndex(6);
-        changeCounter = 0;
+        if(activeBoxes[0] == 1) // circles
+            changeCounter = 2;
+        else changeCounter = 0;
     }
 
     if(Math.random() < 0.002){
-        queCols = pickFromList(ccols, 3);
+        newColors();
     }
 
+}
+
+function newColors()
+{
+    queCols = pickFromList(ccols, 2);
+    //queCols[2] = Math.random() < 0.5 ? "black" : "white";
+    queCols[2] = "black";
 }
 
 //sometimes we want to pick, say, 3 new colors from the color list
@@ -200,6 +305,7 @@ function circs(x, y, ctx, sze, col)
     if (sze < 20) 
         return;
     var nsze = Math.floor(sze);
+
     ctx.beginPath();
     ctx.moveTo(x+nsze, y);
     ctx.arc(x, y, nsze, 0, 2*Math.PI);
@@ -221,21 +327,19 @@ function myMod(x, n)
     return nx;
 }
 
-function sqrs(x, y, ctx, dis, col, rot)
+function sqrs(x, y, ctx, di, col, rot)
 {
-    if (dis < 5)
+    if (di < 5)
         return;
    
     var rads = myMod(rot, Math.PI/2);
     var cx = new Array();
     var cy = new Array();
+
     for (var i = 0; i < 4; i++){
-        cx[i] = x + dis*Math.cos(rads+(i*Math.PI/2));
-        cy[i] = y - dis*Math.sin(rads+(i*Math.PI/2));
+        cx[i] = x + di*Math.cos(rads+(i*Math.PI/2));
+        cy[i] = y - di*Math.sin(rads+(i*Math.PI/2));
     }
-    if (col == "white")
-        ctx.lineWidth = 3;
-    else ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(cx[3], cy[3]);
     for (var i = 0; i < 4; i++)
@@ -244,7 +348,7 @@ function sqrs(x, y, ctx, dis, col, rot)
     ctx.stroke();
     
     for (var i = 0; i < 4; i++)
-        sqrs(cx[i], cy[i], ctx, dis/3, col, rot+Math.PI/4);
+        sqrs(cx[i], cy[i], ctx, di/3, col, rot+Math.PI/4);
     
 }
 
@@ -285,9 +389,9 @@ function snows(ctx, dist, col, rot)
     var p3x = 350 + dist*Math.cos(rot + 4*Math.PI/3);
     var p3y = 350 - dist*Math.sin(rot + 4*Math.PI/3);
     
-    kCurve(p1x, p1y, p2x, p2y, ctx, col, 25);
-    kCurve(p2x, p2y, p3x, p3y, ctx, col, 25);
-    kCurve(p3x, p3y, p1x, p1y, ctx, col, 25);
+    kCurve(p1x, p1y, p2x, p2y, ctx, col, 50);
+    kCurve(p2x, p2y, p3x, p3y, ctx, col, 50);
+    kCurve(p3x, p3y, p1x, p1y, ctx, col, 50);
     
 }
 
@@ -326,7 +430,7 @@ function kCurve(x1, y1u, x2, y2u, ctx, col, lim)
     
     var p3x = x1 + ndist*Math.cos(ntheta);
     var p3y = y1 + ndist*Math.sin(ntheta);
-    
+
     if(dist < lim)
     {
         ctx.beginPath();
@@ -358,7 +462,7 @@ function stars(x, y, ctx, dis, col, rot)
         px[i] = x + dis*Math.cos(rot + 2*i*Math.PI/5);
         py[i] = y - dis*Math.sin(rot + 2*i*Math.PI/5);
     }
-    
+
     ctx.beginPath();
     ctx.moveTo(px[0], py[0]);
     ctx.lineTo(px[2], py[2]);
@@ -388,7 +492,6 @@ function clearScn()
     
 }
 
-var curTempo = 138;
 var curMilliDiff = 120000/curTempo;
 var lastTime = 0;
 
